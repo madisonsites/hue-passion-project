@@ -1,0 +1,39 @@
+/* Site-Specific CSS */
+
+h1 {
+	margin: 1em 0 .5em 0;
+	padding-bottom: .5em;
+	border-bottom: 1px solid #333;
+}
+
+h2 {
+	margin: .25em 0;
+	padding-bottom: .5em;
+	border-bottom: 1px solid #CCC;
+}
+
+.light {
+	padding: .5em 0;
+	border-bottom: 1px solid #CCC;
+}
+
+.light div {
+	display: block;
+    background-color: #DDD;
+    margin: .5em;
+    padding: .5em;
+}
+
+.light a { 
+	color: white;
+	display: inline-block;
+}
+a.red { background-color: #CC0000; }
+a.blue { background-color: #0000CC; }
+a.green { background-color: #00CC00; }
+a.onoff { background-color: #333333; }
+
+a.low { background-color: #222; }
+a.med { background-color: #666; }
+a.high { background-color: #AAA; }
+a.super { background-color: #FFF; color: #333; }

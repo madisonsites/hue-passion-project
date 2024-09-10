@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<title>Lights Demo</title>
+</head>
+<body>
+	<div class="container">
+		<div class="row">	
+			<div class="col-md-12">
+				<h1><a href="demo.html">Hue Light Passion Project</a></h1>
+
+				<!-- PAGE CONTENT -->
+				<h2>Saved Lights</h2>
+
+				<!-- GET THE SAVED LIGHTS FROM THE DATABASE AND POPULATE THEM BELOW-->
+
+				<!-- FOR EACH "LIGHT" SAVED -->
+				<div class="light" data-id="3" data-state="true">
+					<div class="name">Light: 3</div>
+					<div class="current-state">State: On</div>
+					<div class="current-color">Color: 00000</div>
+					<div class="color">Set Color:
+						<a class="state color red btn btn-large" data-color="65535">Red</a>
+						<a class="state color blue btn btn-large" data-color="46920">Blue</a>
+						<a class="state color green btn btn-large" data-color="25500">Green</a>
+						<a class="state onoff btn btn-large">Turn Off</a>
+					</div>
+					<div class="brightness">Set Brightness: 
+						<a class="state bri low btn btn-large" data-bright="25">25%</a>
+						<a class="state bri med btn btn-large" data-bright="50">50%</a>
+						<a class="state bri high btn btn-large" data-bright="75">75%</a>
+						<a class="state bri super btn btn-large" data-bright="100">100%</a>
+					</div>
+					<div> 
+						<a class="state party btn btn-primary btn-block">PARTY MODE!!!</a>
+					</div>
+				</div>
+				<!-- END FOR EACH  -->
+
+				<!-- FOR EACH "LIGHT" SAVED -->
+				<div class="light" data-id="4" data-state="false">
+					<div class="name">Light: 4</div>
+					<div class="current-state">State: On</div>
+					<div class="current-color">Color: 00000</div>
+					<div class="color">Set Color:
+						<a class="state color red btn btn-large" data-color="65535">Red</a>
+						<a class="state color blue btn btn-large" data-color="46920">Blue</a>
+						<a class="state color green btn btn-large" data-color="25500">Green</a>
+						<a class="state onoff btn btn-large">Turn Off</a>
+					</div>
+					<div class="brightness">Set Brightness: 
+						<a class="state bri low btn btn-large" data-bright="25">25%</a>
+						<a class="state bri med btn btn-large" data-bright="50">50%</a>
+						<a class="state bri high btn btn-large" data-bright="75">75%</a>
+						<a class="state bri super btn btn-large" data-bright="100">100%</a>
+					</div>
+					<div> 
+						<a class="state party btn btn-primary btn-block">PARTY MODE!!!</a>
+					</div>
+				</div>
+				<!-- END FOR EACH  -->
+
+			</div>	
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+	var username = "2b67b6ad3545ed67389d59693149eb83";
+	var urlRoot = "http://192.168.0.100/api/"+username+"/";
+
+	$(function(){
+		$('a.state').on("click", function(e){
+
+			var lightId = $(this).closest('.light').data('id');
+			var currentState = $(this).closest('.light').data('state');
+
+			if ($(this).hasClass('color')){
+				var color = $(this).data('color');
+				console.log("color", color);
+				ChangeLightColor(lightId, color);
+			}
+			else if ($(this).hasClass('onoff')){
+				console.log("currentState", currentState);
+				ToggleLightOnOff(lightId, !currentState);
+			}
+			else if ($(this).hasClass('bri')){
+				var brightness = $(this).data('bright');
+				console.log("brightness", brightness);
+				ChangeLightBrightness(lightId, brightness);
+			}
+			else if ($(this).hasClass('party')){
+				console.log("LET'S PARTY!!!");
+				ActivatePartyMode(lightId);
+			}
+		});
+	});
+
+	var ChangeLightColor = function(lightId, color){
+		console.log("Changing the lights color", arguments);
+		// make api call here that sends something like { on: true, hue: color, sat: 254 }
+		var data = {
+			hue: color,
+			sat: 254,
+		};
+		$.ajax({
+			method: "PUT",
+			url: urlRoot+"lights/"+lightId+"/state",
+			data: JSON.stringify(data)
+		}).success(function(resp){
+
+			if (resp[0].success) {
+				$('.light[data-id="'+lightId+'"] .current-color').text('Color: ' + color);
+			}
+
+		}).done(function(response){
+			
+		}).error(function(error){
+			console.error(error);
+			alert("Oops...");
+		});
+	};
+
+	var ToggleLightOnOff = function(lightId, newState){
+		console.log("Toggling the light on and off", arguments);
+		// make api call here that sends something like { on : newState }
+		// set the "state" value for that lights section using the response object from the API call and the lightId you passed to this function
+		var data = {
+			on: newState
+		};
+		$.ajax({
+			method: "PUT",
+			url: urlRoot+"lights/"+lightId+"/state",
+			data: JSON.stringify(data)
+		}).success(function(resp){
+
+			if (resp[0].success) {
+
+				var state = newState ? "On" : "Off";
+				var btn = newState ? "Turn Off" : "Turn On";
+
+				$('.light[data-id="'+lightId+'"] .current-state').text('State: ' + state);
+				$('.light[data-id="'+lightId+'"]').data('state', newState);
+				$('.light[data-id="'+lightId+'"] .onoff').text(btn);
+			}
+
+		}).done(function(response){
+			
+		}).error(function(error){
+			console.error(error);
+			alert("Oops...");
+		});
+	}
+
+	var ChangeLightBrightness = function(lightId, brightness){
+		var calculatedBrightness = Math.floor((brightness/100)*254); // Translates percentages to 0-254 scale.
+		console.log("Changing the lights brightness", calculatedBrightness);
+		// make api call here that sends something like { on: true, bri: calculatedBrightness }
+
+		var data = {
+			bri: calculatedBrightness
+		};
+		$.ajax({
+			method: "PUT",
+			url: urlRoot+"lights/"+lightId+"/state",
+			data: JSON.stringify(data)
+		}).success(function(resp){
+
+			if (resp[0].success) {
+				console.log("sweet");
+			}
+
+		}).done(function(response){
+			
+		}).error(function(error){
+			console.error(error);
+			alert("Oops...");
+		});
+	}
+
+	var ActivatePartyMode = function(lightId){
+		console.log("Activating PAAAAAAAARTYY MOOOOODE");
+
+		var data = {
+			"effect": "colorloop",
+			"on": true,
+			"transitiontime": 1
+		};
+		$.ajax({
+			method: "PUT",
+			url: urlRoot+"lights/"+lightId+"/state",
+			data: JSON.stringify(data)
+		}).success(function(resp){
+
+			// Who cares...
+			console.log("success", resp);
+
+		}).done(function(response){
+			
+		}).error(function(error){
+			console.error(error);
+			alert("Oops...");
+		});
+	}
+	</script>
+</body>
+</html>
